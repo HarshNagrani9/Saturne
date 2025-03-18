@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
 import { 
   View, 
   Text, 
@@ -14,34 +13,26 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
-  Animated,
-  ListRenderItem
+  Animated
 } from "react-native";
-
-// Define interfaces for type safety
-interface College {
-  id: number;
-  name: string;
-}
 
 // Import college data
 import collegesData from "../data/colleges.json"; 
 
-const Signup: React.FC = () => {
-  const navigation = useNavigation<StackNavigationProp<any>>();
+const Signup = () => {
+  const navigation = useNavigation();
 
-
-  const [name, setName] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [college, setCollege] = useState<string>(collegesData[0].name); // Default to first college
-  const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const fadeAnim = useState<Animated.Value>(new Animated.Value(0))[0];
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [college, setCollege] = useState(collegesData[0].name); // Default to first college
+  const [modalVisible, setModalVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const fadeAnim = useState(new Animated.Value(0))[0];
 
   // Simulate loading time
   useEffect(() => {
     // Simulate API calls or asset loading
-    const loadData = async (): Promise<void> => {
+    const loadData = async () => {
       try {
         // Simulate network request
         await new Promise(resolve => setTimeout(resolve, 2000));
@@ -64,21 +55,20 @@ const Signup: React.FC = () => {
     loadData();
   }, []);
 
-  const handleSignup = (): void => {
+  const handleSignup = () => {
     if (!name || !email || !college) {
       alert("Please enter all fields");
       return;
     }
     navigation.navigate('EmailInput');
-    // alert(`Signed up as ${name} from ${college}`);
   };
 
-  const selectCollege = (selectedCollege: string): void => {
+  const selectCollege = (selectedCollege) => {
     setCollege(selectedCollege);
     setModalVisible(false);
   };
 
-  const renderCollegeItem: ListRenderItem<College> = ({ item }) => (
+  const renderCollegeItem = ({ item }) => (
     <TouchableOpacity
       style={[
         styles.collegeItem,
@@ -171,7 +161,7 @@ const Signup: React.FC = () => {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Select your college</Text>
             
-            <FlatList<College>
+            <FlatList
               data={collegesData}
               keyExtractor={(item) => item.id.toString()}
               renderItem={renderCollegeItem}

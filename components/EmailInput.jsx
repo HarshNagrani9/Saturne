@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
 import { 
   View, 
   Text, 
@@ -10,15 +9,14 @@ import {
   ActivityIndicator
 } from "react-native";
 
-// No props required as we'll use navigation directly
-const EmailInput: React.FC = () => {
-  const navigation = useNavigation<StackNavigationProp<any>>();
+const EmailInput = () => {
+  const navigation = useNavigation();
 
-  const [email, setEmail] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const validateEmail = (email: string): boolean => {
+  const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };

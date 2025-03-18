@@ -1,30 +1,36 @@
 import React, { useState } from "react";
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { 
   View, 
   Text, 
   TouchableOpacity, 
   StyleSheet, 
   Modal, 
-  FlatList 
+  FlatList,
+  Alert
 } from "react-native";
 
 const levelsOfStudy = ["Undergraduate", "Postgraduate", "Doctorate"];
 const specializations = ["Computer Science", "Mechanical Engineering", "Electrical Engineering", "Data Science", "Artificial Intelligence"];
 
-const StudyForm: React.FC = () => {
-  const [selectedLevel, setSelectedLevel] = useState<string>(levelsOfStudy[0]);
-  const [selectedSpecializations, setSelectedSpecializations] = useState<string[]>([specializations[0]]);
-  const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [modalType, setModalType] = useState<"level" | "specialization">("level");
-  const [selectedDropdownIndex, setSelectedDropdownIndex] = useState<number | null>(null);
+const StudyForm = () => {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const email = route.params?.email;
+  
+  const [selectedLevel, setSelectedLevel] = useState(levelsOfStudy[0]);
+  const [selectedSpecializations, setSelectedSpecializations] = useState([specializations[0]]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalType, setModalType] = useState("level");
+  const [selectedDropdownIndex, setSelectedDropdownIndex] = useState(null);
 
-  const openModal = (type: "level" | "specialization", index?: number) => {
+  const openModal = (type, index) => {
     setModalType(type);
     setSelectedDropdownIndex(index ?? null);
     setModalVisible(true);
   };
 
-  const selectItem = (item: string) => {
+  const selectItem = (item) => {
     if (modalType === "level") {
       setSelectedLevel(item);
     } else if (selectedDropdownIndex !== null) {
@@ -41,17 +47,42 @@ const StudyForm: React.FC = () => {
     }
   };
 
-  const removeSpecialization = (index: number) => {
+  const removeSpecialization = (index) => {
     const updatedSpecializations = selectedSpecializations.filter((_, i) => i !== index);
     setSelectedSpecializations(updatedSpecializations);
   };
 
   const handleContinue = () => {
-    alert("You clicked enter");
-  }
+    const formData = {
+      email: email,
+      level: selectedLevel,
+      specializations: selectedSpecializations
+    };
+    
+    console.log('Form submitted with data:', formData);
+    
+    Alert.alert(
+      "Registration Complete",
+      "Thank you for providing your education information!",
+      [
+        { 
+          text: "OK", 
+          onPress: () => {
+            navigation.navigate('Signup');
+          } 
+        }
+      ]
+    );
+  };
 
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>Education Information</Text>
+      
+      {email ? (
+        <Text style={styles.emailInfo}>Email: {email}</Text>
+      ) : null}
+      
       <Text style={styles.label}>Select Level of Study</Text>
       <TouchableOpacity style={styles.dropdown} onPress={() => openModal("level")}> 
         <Text style={styles.dropdownText}>{selectedLevel}</Text>
@@ -88,6 +119,9 @@ const StudyForm: React.FC = () => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>
+              {modalType === "level" ? "Select Level of Study" : "Select Specialization"}
+            </Text>
             <FlatList 
               data={modalType === "level" ? levelsOfStudy : specializations} 
               keyExtractor={(item) => item}
@@ -114,6 +148,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
     backgroundColor: "#eef2f3",
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 15,
+    color: "#2c3e50",
+  },
+  emailInfo: {
+    fontSize: 16,
+    color: "#3498db",
+    marginBottom: 20,
   },
   label: {
     fontSize: 20,
@@ -191,6 +236,13 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 20,
     elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 15,
+    color: "#2c3e50",
+    textAlign: "center",
   },
   modalItem: {
     padding: 15,
