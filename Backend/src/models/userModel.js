@@ -32,6 +32,26 @@ const userSchema = new mongoose.Schema({
       type: String
     }]
   },
+
+  isVerified: { 
+    type: Boolean, 
+    default: false 
+  },
+  verifications: [{
+    verifiedBy: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'User' 
+    },
+    verifiedAt: { 
+      type: Date, 
+      default: Date.now 
+    }
+  }],
+  verificationCount: { 
+    type: Number, 
+    default: 0 
+  },
+
   createdAt: {
     type: Date,
     default: Date.now

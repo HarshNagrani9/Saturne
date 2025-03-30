@@ -10,6 +10,8 @@ export default {
     users: `${API_BASE_URL}/users`,
     education: `${API_BASE_URL}/users/education`,
     linkedin: `${API_BASE_URL}/users/linkedin`,
+    unverifiedUsers: `${API_BASE_URL}/users/unverified`,
+    verifyUser: `${API_BASE_URL}/users/verify`,
     colleges: `${API_BASE_URL}/colleges`,
   }
 };

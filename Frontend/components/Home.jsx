@@ -57,6 +57,7 @@ const Home = () => {
   const handleCardClick = () => {
     console.log('You clicked the card');
     // Here you could navigate to a detailed view of the college
+    navigation.navigate('VerifyUsers', { email });
   };
 
   return (

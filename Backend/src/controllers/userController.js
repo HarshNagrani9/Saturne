@@ -179,3 +179,104 @@ exports.getUserByEmail = async (req, res) => {
     });
   }
 };
+
+// Add this method to your existing userController
+exports.getUnverifiedUsers = async (req, res) => {
+  try {
+    const { email } = req.query;
+    console.log('Request for unverified users with email:', email);
+    
+    // Find the current user to get their college
+    const currentUser = await User.findOne({ email });
+    console.log('Current user found:', currentUser ? 'Yes' : 'No');
+    
+    if (!currentUser) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'User not found' 
+      });
+    }
+    
+    console.log('User college:', currentUser.college);
+    
+    // Find unverified users from the same college
+    const unverifiedUsers = await User.find({
+      college: currentUser.college,
+      isVerified: false,
+      email: { $ne: email }
+    }).select('name email linkedinProfile verificationCount');
+    
+    console.log('Unverified users found:', unverifiedUsers.length);
+    
+    res.status(200).json({
+      success: true,
+      data: unverifiedUsers
+    });
+  } catch (error) {
+    console.error('Get unverified users error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error', 
+      error: error.message 
+    });
+  }
+};
+
+// Add this method to your existing userController
+exports.verifyUser = async (req, res) => {
+  try {
+    const { verifierEmail, userToVerifyId } = req.body;
+    
+    // Find the verifier
+    const verifier = await User.findOne({ email: verifierEmail });
+    if (!verifier) {
+      return res.status(404).json({ success: false, message: 'Verifier not found' });
+    }
+    
+    // Find user to verify
+    const userToVerify = await User.findById(userToVerifyId);
+    if (!userToVerify) {
+      return res.status(404).json({ success: false, message: 'User to verify not found' });
+    }
+    
+    // Check if they're from the same college
+    if (verifier.college !== userToVerify.college) {
+      return res.status(403).json({ success: false, message: 'You can only verify users from your college' });
+    }
+    
+    // Check if verifier has already verified this user
+    const alreadyVerified = userToVerify.verifications.some(v => 
+      v.verifiedBy.toString() === verifier._id.toString()
+    );
+    
+    if (alreadyVerified) {
+      return res.status(400).json({ success: false, message: 'You have already verified this user' });
+    }
+    
+    // Add verification
+    userToVerify.verifications.push({
+      verifiedBy: verifier._id,
+      verifiedAt: new Date()
+    });
+    
+    userToVerify.verificationCount = userToVerify.verifications.length;
+    
+    // Check if user now has 3 verifications
+    if (userToVerify.verificationCount >= 3) {
+      userToVerify.isVerified = true;
+    }
+    
+    await userToVerify.save();
+    
+    res.status(200).json({
+      success: true,
+      data: {
+        verificationCount: userToVerify.verificationCount,
+        isVerified: userToVerify.isVerified
+      }
+    });
+  } catch (error) {
+    console.error('Verify user error:', error);
+    res.status(500).json({ success: false, message: 'Server error', error: error.message });
+  }
+};

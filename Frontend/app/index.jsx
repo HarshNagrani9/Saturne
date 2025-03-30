@@ -5,6 +5,7 @@ import Signup from '../components/Signup';
 import LinkedinInput from '../components/LinkedinInput';
 import Study from '../components/Study';
 import Home from '../components/Home';
+import VerifyUsers from '../components/VerifyUsers';
 
 const Stack = createStackNavigator();
 
@@ -31,6 +32,12 @@ export default function AppNavigator() {
         component={Home} 
         options={{ headerShown: false }} 
       />
+      <Stack.Screen 
+        name="VerifyUsers" 
+        component={VerifyUsers} 
+        options={{ headerShown: false }} 
+      />
+
     </Stack.Navigator>
   );
 }
