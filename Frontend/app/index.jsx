@@ -6,15 +6,23 @@ import LinkedinInput from '../components/LinkedinInput';
 import Study from '../components/Study';
 import Home from '../components/Home';
 import VerifyUsers from '../components/VerifyUsers';
+import Profile from '../components/Profile';
+import Signin from '../components/Signin';
 
 const Stack = createStackNavigator();
 
 export default function AppNavigator() {
   return (
     <Stack.Navigator initialRouteName="Signup">
+
       <Stack.Screen 
         name="Signup" 
         component={Signup} 
+        options={{ headerShown: false }} 
+      />
+      <Stack.Screen 
+        name="Signin" 
+        component={Signin} 
         options={{ headerShown: false }} 
       />
       <Stack.Screen 
@@ -36,6 +44,11 @@ export default function AppNavigator() {
         name="VerifyUsers" 
         component={VerifyUsers} 
         options={{ headerShown: false }} 
+      />
+      <Stack.Screen 
+        name="Profile" 
+        component={Profile} 
+        options={{ headerShown: false }}
       />
 
     </Stack.Navigator>

@@ -197,6 +197,17 @@ const Signup = () => {
             <TouchableOpacity style={styles.button} onPress={handleSignup}>
               <Text style={styles.buttonText}>Continue</Text>
             </TouchableOpacity>
+
+<TouchableOpacity style={styles.button} onPress={handleSignup}>
+  <Text style={styles.buttonText}>Continue</Text>
+</TouchableOpacity>
+
+<View style={styles.signInContainer}>
+  <Text style={styles.signInText}>Already a user?</Text>
+  <TouchableOpacity onPress={() => navigation.navigate('Signin')}>
+    <Text style={styles.signInLink}>Sign in</Text>
+  </TouchableOpacity>
+</View>
           </Animated.View>
         )}
       </KeyboardAvoidingView>
@@ -370,6 +381,27 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
   },
+  // Add to your Signup.jsx StyleSheet
+signInContainer: {
+  flexDirection: 'row',
+  marginTop: 24,
+  justifyContent: 'center',
+  backgroundColor: 'rgba(255, 255, 255, 0.8)',
+  padding: 12,
+  borderRadius: 8,
+  marginBottom: 10,
+  width: '100%',
+},
+signInText: {
+  color: '#6c757d',
+  fontSize: 15,
+},
+signInLink: {
+  color: '#007bff',
+  fontSize: 15,
+  fontWeight: '600',
+  marginLeft: 5,
+},
 });
 
 export default Signup;
