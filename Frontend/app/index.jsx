@@ -8,6 +8,7 @@ import Home from '../components/Home';
 import VerifyUsers from '../components/VerifyUsers';
 import Profile from '../components/Profile';
 import Signin from '../components/Signin';
+import CollegeCard from '../components/CollegeCard';
 
 const Stack = createStackNavigator();
 
@@ -46,6 +47,11 @@ export default function AppNavigator() {
         options={{ headerShown: false }} 
       />
       <Stack.Screen 
+        name="CollegeCard" 
+        component={CollegeCard} 
+        options={{ headerShown: false }} 
+      />
+      <Stack.Screen 
         name="Profile" 
         component={Profile} 
         options={{ headerShown: false }}
@@ -54,3 +60,6 @@ export default function AppNavigator() {
     </Stack.Navigator>
   );
 }
+
+
+

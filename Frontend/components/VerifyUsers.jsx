@@ -1,4 +1,4 @@
-// frontend/components/VerifyUsers.jsx
+// In VerifyUsers.jsx, update the component with improved styles
 import React, { useState, useEffect } from 'react';
 import { 
   View, 
@@ -7,31 +7,24 @@ import {
   FlatList, 
   TouchableOpacity, 
   ActivityIndicator,
-  Alert
+  Alert,
+  SafeAreaView,
+  StatusBar
 } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import API from '../config/api';
 import useUserStore from '../store/userStore';
 
 const VerifyUsers = () => {
   const navigation = useNavigation();
-  const route = useRoute();
-  const email = route.params?.email;
-
+  
+  // Get user from Zustand
   const user = useUserStore(state => state.user);
   
   const [unverifiedUsers, setUnverifiedUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  if (!user) {
-      // We should navigate to signup if there's no user
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Signup' }],
-      });
-      return null; // Return null to prevent rendering anything else
-    }
+  const [activeCardId, setActiveCardId] = useState(null);
   
   useEffect(() => {
     if (user && user.email) {
@@ -132,52 +125,89 @@ const VerifyUsers = () => {
   );
   
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Verify Users</Text>
-      
-      {loading ? (
-        <ActivityIndicator size="large" color="#007bff" />
-      ) : error ? (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity 
-            style={styles.retryButton}
-            onPress={fetchUnverifiedUsers}
-          >
-            <Text style={styles.retryButtonText}>Retry</Text>
-          </TouchableOpacity>
-        </View>
-      ) : unverifiedUsers.length > 0 ? (
-        <FlatList
-          data={unverifiedUsers}
-          renderItem={renderItem}
-          keyExtractor={(item) => item._id}
-          contentContainerStyle={styles.listContainer}
-        />
-      ) : (
-        <Text style={styles.noUsersText}>No unverified users from your college</Text>
-      )}
-      
-      <TouchableOpacity 
-        style={styles.backButton}
-        onPress={() => navigation.navigate('Home')}
-      >
-        <Text style={styles.backButtonText}>Back to Home</Text>
-      </TouchableOpacity>
-    </View>
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="dark-content" backgroundColor="#f5f5f5" />
+      <View style={styles.container}>
+        {/* Back button in top left */}
+        <TouchableOpacity 
+          style={styles.backButton}
+          onPress={() => navigation.navigate('CollegeCard')}
+        >
+          <Text style={styles.backButtonText}>←</Text>
+        </TouchableOpacity>
+        
+        <Text style={styles.title}>Verify Users</Text>
+        
+        {loading ? (
+          <View style={styles.loaderContainer}>
+            <ActivityIndicator size="large" color="#007bff" />
+            <Text style={styles.loaderText}>Loading users...</Text>
+          </View>
+        ) : error ? (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{error}</Text>
+            <TouchableOpacity 
+              style={styles.retryButton}
+              onPress={fetchUnverifiedUsers}
+            >
+              <Text style={styles.retryButtonText}>Retry</Text>
+            </TouchableOpacity>
+          </View>
+        ) : unverifiedUsers.length > 0 ? (
+          <FlatList
+            data={unverifiedUsers}
+            renderItem={renderItem}
+            keyExtractor={(item) => item._id}
+            contentContainerStyle={styles.listContainer}
+            showsVerticalScrollIndicator={false}
+          />
+        ) : (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.noUsersText}>No unverified users from your college</Text>
+            <Text style={styles.emptySubtext}>All users in your college have been verified!</Text>
+          </View>
+        )}
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f5f5f5',
+  },
+  backButton: {
+    position: 'absolute',
+    top: 40,
+    left: 20,
+    zIndex: 10,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#6c757d',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+  },
+  backButtonText: {
+    color: '#fff',
+    fontSize: 22,
+    fontWeight: 'bold',
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginTop: 90,
+    marginBottom: 25,
     textAlign: 'center',
     color: '#333',
   },
@@ -186,91 +216,127 @@ const styles = StyleSheet.create({
   },
   userCard: {
     backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 15,
+    borderRadius: 12,
+    padding: 18,
+    marginBottom: 18,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.12,
+    shadowRadius: 5,
+    elevation: 4,
+    minHeight: 130,
+    borderLeftWidth: 4,
+    borderLeftColor: '#007bff',
   },
   userInfo: {
     flex: 1,
+    paddingRight: 10,
   },
   userName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 5,
+    fontSize: 19,
+    fontWeight: '700',
+    marginBottom: 6,
     color: '#333',
   },
   userEmail: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 5,
+    fontSize: 15,
+    color: '#555',
+    marginBottom: 6,
   },
   linkedinProfile: {
     fontSize: 14,
     color: '#0077b5',
-    marginBottom: 5,
+    marginBottom: 6,
   },
   verificationCount: {
     fontSize: 14,
     color: '#28a745',
-    fontWeight: '500',
+    fontWeight: '600',
+    marginTop: 4,
   },
   verifyButton: {
     backgroundColor: '#007bff',
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 5,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    borderRadius: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
   },
   verifyButtonText: {
     color: '#fff',
     fontWeight: 'bold',
+    fontSize: 15,
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loaderText: {
+    marginTop: 15,
+    fontSize: 16,
+    color: '#6c757d',
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 20,
   },
   errorText: {
     color: '#dc3545',
-    fontSize: 16,
-    marginBottom: 15,
+    fontSize: 17,
+    marginBottom: 20,
     textAlign: 'center',
   },
   retryButton: {
     backgroundColor: '#6c757d',
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 5,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    elevation: 2,
   },
   retryButtonText: {
     color: '#fff',
     fontWeight: 'bold',
+    fontSize: 15,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
   },
   noUsersText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#495057',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  emptySubtext: {
     fontSize: 16,
     color: '#6c757d',
     textAlign: 'center',
-    marginTop: 30,
   },
-  backButton: {
-    backgroundColor: '#6c757d',
-    padding: 12,
-    borderRadius: 5,
-    marginTop: 20,
+  noPostContainer: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
+    padding: 20,
   },
-  backButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
+  noPostText: {
+    fontSize: 17,
+    color: '#6c757d',
+    textAlign: 'center',
+    fontStyle: 'italic'
+  }
 });
 
 export default VerifyUsers;

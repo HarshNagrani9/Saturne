@@ -371,7 +371,7 @@ const Home = () => {
 
   const handleCardClick = () => {
     console.log('You clicked the card');
-    navigation.navigate('VerifyUsers');
+    navigation.navigate('CollegeCard');
   };
 
   // If no user data, redirect to signup
