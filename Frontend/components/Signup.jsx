@@ -16,12 +16,14 @@ import {
   Animated
 } from "react-native";
 import API from '../config/api'
+import useUserStore from '../store/userStore';
 
 // Import college data
 import collegesData from "../data/colleges.json"; 
 
 const Signup = () => {
   const navigation = useNavigation();
+  const setUser = useUserStore(state => state.setUser);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -81,7 +83,25 @@ const Signup = () => {
       
       if (data.success) {
         console.log("Data")
-        //navigation.navigate('EmailInput', { email });
+
+        const userData = {
+          _id: data.data._id,
+          name,
+          email,
+          college,
+          isVerified: data.data.isVerified || false,
+          verificationCount: data.data.verificationCount || 0,
+          education: data.data.education || {
+            level: 'Undergraduate',
+            specializations: []
+          }
+        };
+
+        setUser(userData);
+      
+      // Log to verify the data was stored
+      console.log('Current store state:', useUserStore.getState().user);
+
         navigation.navigate('LinkedinInput', { email });
       } else {
         alert(data.message || 'Signup failed');

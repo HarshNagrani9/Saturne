@@ -298,6 +298,7 @@ import {
 } from "react-native";
 
 import API from '../config/api';
+import useUserStore from '../store/userStore';
 
 const levelsOfStudy = ["Undergraduate", "Postgraduate", "Doctorate"];
 const specializations = ["Computer Science", "Mechanical Engineering", "Electrical Engineering", "Data Science", "Artificial Intelligence"];
@@ -306,6 +307,9 @@ const StudyForm = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const email = route.params?.email;
+
+  const user = useUserStore(state => state.user);
+  const updateEducation = useUserStore(state => state.updateEducation);
   
   const [selectedLevel, setSelectedLevel] = useState(levelsOfStudy[0]);
   const [selectedSpecializations, setSelectedSpecializations] = useState([specializations[0]]);
@@ -313,6 +317,15 @@ const StudyForm = () => {
   const [modalType, setModalType] = useState("level");
   const [selectedDropdownIndex, setSelectedDropdownIndex] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  if (!user) {
+    // We should navigate to signup if there's no user
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Signup' }],
+    });
+    return null; // Return null to prevent rendering anything else
+  }
 
   const openModal = (type, index) => {
     setModalType(type);
@@ -409,6 +422,17 @@ const handleContinue = async () => {
     const data = await response.json();
     
     if (data.success) {
+      const educationData = {
+        level: selectedLevel,
+        specializations: selectedSpecializations
+      };
+      
+      updateEducation(educationData);
+      
+      // Log to verify the data was updated
+      console.log('Education updated in store:', educationData);
+      console.log('Current store state:', useUserStore.getState().user);
+
       navigation.navigate('Home', { email });
       // Alert.alert(
       //   "Registration Complete",
@@ -438,8 +462,8 @@ const handleContinue = async () => {
     <View style={styles.container}>
       <Text style={styles.title}>Education Information</Text>
       
-      {email ? (
-        <Text style={styles.emailInfo}>Email: {email}</Text>
+      {user.email ? (
+        <Text style={styles.emailInfo}>Email: {user.email}</Text>
       ) : null}
       
       <Text style={styles.label}>Select Level of Study</Text>

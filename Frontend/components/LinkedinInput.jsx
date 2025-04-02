@@ -11,10 +11,13 @@ import {
 } from "react-native";
 
 import API from '../config/api'
+import useUserStore from '../store/userStore';
 
 const LinkedinInput = () => {
   const navigation = useNavigation();
   const route = useRoute();
+  const user = useUserStore(state => state.user);
+  const updateLinkedinProfile = useUserStore(state => state.updateLinkedinProfile);
   
   // Get email from navigation params
   const email = route.params?.email;
@@ -22,6 +25,15 @@ const LinkedinInput = () => {
   const [linkedinProfile, setLinkedinProfile] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+  if (!user) {
+    // We should navigate to signup if there's no user
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Signup' }],
+    });
+    return null; // Return null to prevent rendering anything else
+  }
 
   const validateLinkedinUrl = (url) => {
     // Basic validation for LinkedIn URL
@@ -72,6 +84,13 @@ const LinkedinInput = () => {
       const data = await response.json();
       
       if (data.success) {
+        // Update the LinkedIn profile in Zustand store
+        updateLinkedinProfile(linkedinProfile);
+        
+        // Log to verify the data was updated
+        console.log('LinkedIn profile updated in store:', linkedinProfile);
+        console.log('Current store state:', useUserStore.getState().user);
+
         // Continue to next screen
         navigation.navigate('Study', { email });
       } else {
@@ -95,8 +114,8 @@ const LinkedinInput = () => {
       <Text style={styles.title}>Your LinkedIn Profile</Text>
       <Text style={styles.description}>Please enter your LinkedIn profile URL</Text>
       
-      {email ? (
-        <Text style={styles.emailInfo}>Email: {email}</Text>
+      {user.email ? (
+        <Text style={styles.emailInfo}>Email: {user.email}</Text>
       ) : null}
       
       <TextInput

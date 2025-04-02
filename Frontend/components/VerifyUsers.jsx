@@ -11,24 +11,41 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import API from '../config/api';
+import useUserStore from '../store/userStore';
 
 const VerifyUsers = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const email = route.params?.email;
+
+  const user = useUserStore(state => state.user);
   
   const [unverifiedUsers, setUnverifiedUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  if (!user) {
+      // We should navigate to signup if there's no user
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Signup' }],
+      });
+      return null; // Return null to prevent rendering anything else
+    }
   
   useEffect(() => {
-    fetchUnverifiedUsers();
+    if (user && user.email) {
+      fetchUnverifiedUsers();
+    } else {
+      setError("User information missing. Please log in again.");
+      setLoading(false);
+    }
   }, []);
   
   const fetchUnverifiedUsers = async () => {
     setLoading(true);
     try {
-      const url = `${API.endpoints.users}/unverified?email=${encodeURIComponent(email)}`;
+      const url = `${API.endpoints.users}/unverified?email=${encodeURIComponent(user.email)}`;
       console.log('Fetching from URL:', url);
       
       const response = await fetch(url);
@@ -50,6 +67,11 @@ const VerifyUsers = () => {
   };
   
   const handleVerify = async (userId) => {
+    if (!user || !user.email) {
+      Alert.alert("Error", "User information missing. Please log in again.");
+      return;
+    }
+    
     try {
       const response = await fetch(`${API.endpoints.users}/verify`, {
         method: 'POST',
@@ -57,10 +79,16 @@ const VerifyUsers = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          verifierEmail: email,
+          verifierEmail: user.email,
           userToVerifyId: userId
         }),
       });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Error response:", errorText);
+        throw new Error(`Server responded with status: ${response.status}`);
+      }
       
       const data = await response.json();
       
@@ -76,7 +104,7 @@ const VerifyUsers = () => {
       }
     } catch (error) {
       console.error('Verification error:', error);
-      Alert.alert("Error", "Network error. Please try again.");
+      Alert.alert("Error", `Network error: ${error.message}`);
     }
   };
   
@@ -246,3 +274,4 @@ const styles = StyleSheet.create({
 });
 
 export default VerifyUsers;
+
