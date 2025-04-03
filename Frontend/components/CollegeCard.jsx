@@ -38,7 +38,7 @@ const CollegeCard = () => {
       {/* Back button */}
       <TouchableOpacity 
         style={styles.backButton}
-        onPress={() => navigation.goBack()}
+        onPress={() => navigation.navigate("Home")}
       >
         <Text style={styles.backButtonText}>←</Text>
       </TouchableOpacity>

@@ -198,10 +198,6 @@ const Signup = () => {
               <Text style={styles.buttonText}>Continue</Text>
             </TouchableOpacity>
 
-<TouchableOpacity style={styles.button} onPress={handleSignup}>
-  <Text style={styles.buttonText}>Continue</Text>
-</TouchableOpacity>
-
 <View style={styles.signInContainer}>
   <Text style={styles.signInText}>Already a user?</Text>
   <TouchableOpacity onPress={() => navigation.navigate('Signin')}>
