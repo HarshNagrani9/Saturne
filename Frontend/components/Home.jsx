@@ -575,12 +575,19 @@ useEffect(() => {
         : post
     ));
   });
+
+  //Listen for Delete post
+  socket.on('postDeleted', ({postId}) => {
+    console.log('Post deletion notification received:', postId);
+    setPosts(prevPosts => prevPosts.filter(post => post._id !== postId));
+  });
   
   // Clean up on unmount
   return () => {
     socket.off('postCreated');
     socket.off('postLiked');
     socket.off('commentAdded');
+    socket.off('postDeleted');
   };
 }, [user]); // Depend on user to reconnect if user changes
 
@@ -664,6 +671,10 @@ useEffect(() => {
     ));
   };
 
+  const handleDelete = (postId) => {
+    setPosts(posts.filter(post => post._id !== postId));
+  };
+
   // If no user data, redirect to signup
   if (!user) {
     navigation.navigate('Signup');
@@ -733,6 +744,7 @@ useEffect(() => {
                 post={item} 
                 onLike={handleLike} 
                 onComment={handleComment}
+                onDelete={handleDelete}
               />
             )}
             keyExtractor={item => item._id}

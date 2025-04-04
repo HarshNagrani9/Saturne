@@ -240,3 +240,61 @@ exports.addComment = async (req, res) => {
     });
   }
 };
+
+
+// Add to postController.js
+exports.deletePost = async (req, res) => {
+  try {
+    const { postId, userId } = req.body;
+    
+    // Validate input
+    if (!postId || !userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Post ID and User ID are required'
+      });
+    }
+    
+    // Find the post
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: 'Post not found'
+      });
+    }
+    
+    // Check if user is the author of the post
+    if (post.author.toString() !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: 'You can only delete your own posts'
+      });
+    }
+    
+    // Delete the post
+    await Post.findByIdAndDelete(postId);
+    
+    // Get Socket.IO instance
+    const io = req.app.get('io');
+    
+    // Emit post deleted event
+    io.emit('postDeleted', {
+      postId,
+      postType: post.postType,
+      authorCollege: post.authorCollege
+    });
+    
+    res.status(200).json({
+      success: true,
+      message: 'Post deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete post error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+};

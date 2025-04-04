@@ -19,4 +19,7 @@ router.post('/like', postController.toggleLike);
 // Add a comment
 router.post('/comment', postController.addComment);
 
+// Delete posts
+router.post('/delete', postController.deletePost);
+
 module.exports = router;

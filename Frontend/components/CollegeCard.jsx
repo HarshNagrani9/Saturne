@@ -297,12 +297,18 @@ const CollegeCard = () => {
           : post
       ));
     });
+
+    socket.on('postDeleted', ({postId}) => {
+      console.log('Post deletion notification received:', postId);
+      setPosts(prevPosts => prevPosts.filter(post => post._id !== postId));
+    });
     
     // Clean up on unmount
     return () => {
       socket.off('postCreated');
       socket.off('postLiked');
       socket.off('commentAdded');
+      socket.off('postDeleted');
     };
   }, [user?.college]);
 
@@ -360,6 +366,10 @@ const CollegeCard = () => {
         ? { ...post, comments: [...post.comments, newComment] }
         : post
     ));
+  };
+
+  const handleDelete = (postId) => {
+    setPosts(posts.filter(post => post._id !== postId));
   };
 
   // If no user data, redirect to signup
@@ -443,6 +453,7 @@ const CollegeCard = () => {
                 post={item} 
                 onLike={handleLike} 
                 onComment={handleComment}
+                onDelete={handleDelete}
               />
             )}
             keyExtractor={item => item._id}

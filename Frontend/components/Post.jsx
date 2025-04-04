@@ -13,7 +13,7 @@ import {
 import API from '../config/api';
 import useUserStore from '../store/userStore';
 
-const Post = ({ post, onLike, onComment }) => {
+const Post = ({ post, onLike, onComment, onDelete }) => {
   const user = useUserStore(state => state.user);
   const [comment, setComment] = useState('');
   const [showComments, setShowComments] = useState(false);
@@ -89,6 +89,49 @@ const Post = ({ post, onLike, onComment }) => {
       console.error('Comment error:', error);
       Alert.alert('Error', 'Network error while adding comment');
     }
+  };
+
+  const handleDelete = async () => {
+    // Use React Native's Alert instead of window.confirm
+    Alert.alert(
+      "Delete Post",
+      "Are you sure you want to delete this post?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        { 
+          text: "Delete", 
+          onPress: async () => {
+            try {
+              const response = await fetch(`${API.endpoints.posts}/delete`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  postId: post._id,
+                  userId: user._id
+                }),
+              });
+              
+              const data = await response.json();
+              
+              if (data.success) {
+                if (onDelete) onDelete(post._id);
+              } else {
+                Alert.alert('Error', data.message || 'Failed to delete post');
+              }
+            } catch (error) {
+              console.error('Delete error:', error);
+              Alert.alert('Error', 'Network error while deleting post');
+            }
+          },
+          style: "destructive"
+        }
+      ]
+    );
   };
   
   return (
@@ -169,6 +212,14 @@ const Post = ({ post, onLike, onComment }) => {
               <Text style={styles.postCommentText}>Post</Text>
             </TouchableOpacity>
           </View>
+          {post.author === user._id && (
+    <TouchableOpacity 
+      style={styles.deleteButton}
+      onPress={handleDelete}
+    >
+      <Text style={styles.deleteButtonText}>Delete</Text>
+    </TouchableOpacity>
+  )}
         </View>
       )}
     </View>
@@ -305,6 +356,20 @@ const styles = StyleSheet.create({
   },
   postCommentText: {
     color: '#fff',
+    fontWeight: 'bold',
+  },
+  deleteButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: '#dc3545',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+  },
+  deleteButtonText: {
+    color: '#fff',
+    fontSize: 12,
     fontWeight: 'bold',
   },
 });
