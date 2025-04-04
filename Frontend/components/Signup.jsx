@@ -59,6 +59,7 @@ const Signup = () => {
   }, []);
 
   const handleSignup = async () => {
+    console.log("Continue button in signup clicked");
     if (!name || !email || !college) {
       alert("Please enter all fields");
       return;
