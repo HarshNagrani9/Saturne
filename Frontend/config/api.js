@@ -1,5 +1,5 @@
 // frontend/config/api.js
-const IP_ADDRESS = '192.168.31.247'; // Replace with your computer's actual IP address
+const IP_ADDRESS = '192.168.0.162'; // Replace with your computer's actual IP address
 const API_PORT = 8000;
 const API_BASE_URL = `http://${IP_ADDRESS}:${API_PORT}/api`;
 
